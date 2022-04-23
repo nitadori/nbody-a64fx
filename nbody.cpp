@@ -26,8 +26,8 @@ struct AccelerationD{
 
 
 static Body *g_body;
-static float *g_x, g_y, g_z;
-static float *g_x2, g_y2, g_z2;
+static float *g_x, *g_y, *g_z, *g_m;
+static float *g_x2, *g_y2, *g_z2;
 
 __attribute__((noinline))
 void nbody_ref(
@@ -204,6 +204,53 @@ void nbody_compiler_unroll(
 	return ;
 }
 
+__attribute__((noinline))
+void nbody_compiler_realc(
+	const int n,
+	const float eps2,
+	const Body body[],
+	Acceleration acc[])
+{
+	for(int i=0; i<n; i++){ 
+		::g_x[i] = body[i].x;
+		::g_y[i] = body[i].y;
+		::g_z[i] = body[i].z;
+		::g_m[i] = body[i].m;
+	}
+	for(int i=0; i<n; i++){ 
+		const float xi=body[i+0].x, yi = body[i+0].y, zi = body[i+0].z;
+		float ax=0, ay=0, az=0;
+
+		for(int j=0; j<n; j++){
+			float dx = xi - ::g_x[j];
+			float dy = yi - ::g_y[j];
+			float dz = zi - ::g_z[j];
+
+			float r2 = eps2 + dx*dx;
+			r2 += dy*dy;
+			r2 += dz*dz;
+
+			float ri = 1.f / sqrtf(r2);
+
+			float mri = ::g_m[j] * ri;
+			float ri2 = ri * ri;
+
+			float mri3 = mri * ri2;
+
+			// reload and subtract again
+			dx = xi - ::g_x2[j];
+			dy = yi - ::g_y2[j];
+			dz = zi - ::g_z2[j];
+
+			ax -= mri3 * dx;
+			ay -= mri3 * dy;
+			az -= mri3 * dz;
+		}
+		acc[i] = {ax, ay, az};
+	}
+	return ;
+}
+
 int main(){
 	enum{
 		N = 2*1024,
@@ -229,6 +276,11 @@ int main(){
 	}
 
 	::g_body = body;
+	static float xbuf[N], ybuf[N], zbuf[N], mbuf[N];
+	::g_x = ::g_x2 = xbuf;
+	::g_y = ::g_y2 = ybuf;
+	::g_z = ::g_z2 = zbuf;
+	::g_m = mbuf;
 
 	nbody_ref(N, eps2, dbl_body, dbl_acc);
 
@@ -308,10 +360,12 @@ int main(){
 	verify(nbody_compiler_AoS);
 	verify(nbody_compiler_SoA);
 	verify(nbody_compiler_unroll);
+	verify(nbody_compiler_realc);
 
 	benchmark(nbody_compiler_AoS);
 	benchmark(nbody_compiler_SoA);
 	benchmark(nbody_compiler_unroll);
+	benchmark(nbody_compiler_realc);
 
 	return 0;
 }
