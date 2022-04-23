@@ -320,7 +320,7 @@ static inline svfloat32x3_t svcreate3_f32(svfloat32_t x, svfloat32_t y, svfloat3
 #endif
 
 __attribute__((noinline))
-void nbody_sve(
+void nbody_acle(
 	const int n,
 	const float eps2_ss,
 	const Body body[],
@@ -380,7 +380,7 @@ void nbody_sve(
 }
 
 __attribute__((noinline))
-void nbody_sve_rsqrt3(
+void nbody_acle_rsqrt3(
 	const int n,
 	const float eps2_ss,
 	const Body body[],
@@ -546,15 +546,15 @@ int main(){
 	verify(nbody_compiler_SoA);
 	verify(nbody_compiler_unroll);
 	verify(nbody_compiler_recalc);
-	verify(nbody_sve);
-	verify(nbody_sve_rsqrt3);
+	verify(nbody_acle);
+	verify(nbody_acle_rsqrt3);
 
 	benchmark(nbody_compiler_AoS);
 	benchmark(nbody_compiler_SoA);
 	benchmark(nbody_compiler_unroll);
 	benchmark(nbody_compiler_recalc);
-	benchmark(nbody_sve);
-	benchmark(nbody_sve_rsqrt3);
+	benchmark(nbody_acle);
+	benchmark(nbody_acle_rsqrt3);
 
 	return 0;
 }
