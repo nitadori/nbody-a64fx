@@ -3,6 +3,7 @@
 
 #include<cstdio>
 #include<cstdlib>
+#include<cassert>
 #include<cmath>
 #include<algorithm>
 
@@ -603,6 +604,128 @@ void nbody_acle_ni32(
 	}
 }
 
+struct VecBodies{
+	float x[16];
+	float y[16];
+	float z[16];
+	float m[16];
+};
+
+__attribute__((noinline))
+void nbody_acle_jpar_inner(
+	const int n,
+	const float eps2_ss,
+	const VecBodies body[],
+	Acceleration acc[],
+	const VecBodies body2[])
+{
+	const svfloat32_t eps2 = svdup_f32(eps2_ss);
+
+	const svfloat32_t one  = svdup_f32(1.0);
+	const svfloat32_t b    = svdup_f32(15./8.);
+	const svfloat32_t a    = svdup_f32( 3./2.);
+
+	const svbool_t p0 = svptrue_b32();
+
+	for(int i=0; i<n; i+=2){
+		svfloat32_t xi_0 = svdup_f32(body[i/16].x[i%16]);
+		svfloat32_t yi_0 = svdup_f32(body[i/16].y[i%16]);
+		svfloat32_t zi_0 = svdup_f32(body[i/16].z[i%16]);
+		svfloat32_t xi_1 = svdup_f32(body[i/16].x[i%16 + 1]);
+		svfloat32_t yi_1 = svdup_f32(body[i/16].y[i%16 + 1]);
+		svfloat32_t zi_1 = svdup_f32(body[i/16].z[i%16 + 1]);
+
+		svfloat32_t ax_0, ay_0, az_0;
+		svfloat32_t ax_1, ay_1, az_1;
+
+		ax_0 = ay_0 = az_0 = svdup_f32(0);
+		ax_1 = ay_1 = az_1 = svdup_f32(0);
+
+		for(int j=0, j16=0; j<n; j+=16, j16++){
+			svfloat32_t xj = svld1_f32(p0, body[j16].x);
+			svfloat32_t yj = svld1_f32(p0, body[j16].y);
+			svfloat32_t zj = svld1_f32(p0, body[j16].z);
+			svfloat32_t mj = svld1_f32(p0, body[j16].m);
+
+			svfloat32_t dx_0 = svsub_f32_x(p0, xj, xi_0);
+			svfloat32_t dy_0 = svsub_f32_x(p0, yj, yi_0);
+			svfloat32_t dz_0 = svsub_f32_x(p0, zj, zi_0);
+
+			svfloat32_t dx_1 = svsub_f32_x(p0, xj, xi_1);
+			svfloat32_t dy_1 = svsub_f32_x(p0, yj, yi_1);
+			svfloat32_t dz_1 = svsub_f32_x(p0, zj, zi_1);
+
+			svfloat32_t r2_0 = svmad_f32_x(p0, dx_0, dx_0, eps2);
+			r2_0 = svmad_f32_x(p0, dy_0, dy_0, r2_0);
+			r2_0 = svmad_f32_x(p0, dz_0, dz_0, r2_0);
+			svfloat32_t r2_1 = svmad_f32_x(p0, dx_1, dx_1, eps2);
+			r2_1 = svmad_f32_x(p0, dy_1, dy_1, r2_1);
+			r2_1 = svmad_f32_x(p0, dz_1, dz_1, r2_1);
+
+
+			svfloat32_t mri3_0 = rsqrtCubed(r2_0, mj, p0, one, a, b);
+			svfloat32_t mri3_1 = rsqrtCubed(r2_1, mj, p0, one, a, b);
+
+#if 1 // load and subtract again
+			xj = svld1_f32(p0, body2[j16].x);
+			yj = svld1_f32(p0, body2[j16].y);
+			zj = svld1_f32(p0, body2[j16].z);
+
+			dx_0 = svsub_f32_x(p0, xj, xi_0);
+			dy_0 = svsub_f32_x(p0, yj, yi_0);
+			dz_0 = svsub_f32_x(p0, zj, zi_0);
+
+			dx_1 = svsub_f32_x(p0, xj, xi_1);
+			dy_1 = svsub_f32_x(p0, yj, yi_1);
+			dz_1 = svsub_f32_x(p0, zj, zi_1);
+#endif
+			ax_0 = svmla_f32_x(p0, ax_0, mri3_0, dx_0);
+			ay_0 = svmla_f32_x(p0, ay_0, mri3_0, dy_0);
+			az_0 = svmla_f32_x(p0, az_0, mri3_0, dz_0);
+			ax_1 = svmla_f32_x(p0, ax_1, mri3_1, dx_1);
+			ay_1 = svmla_f32_x(p0, ay_1, mri3_1, dy_1);
+			az_1 = svmla_f32_x(p0, az_1, mri3_1, dz_1);
+		}
+
+		float axs = svaddv_f32(p0, ax_0);
+		float ays = svaddv_f32(p0, ay_0);
+		float azs = svaddv_f32(p0, az_0);
+		acc[i] = {axs, ays, azs};
+
+		axs = svaddv_f32(p0, ax_1);
+		ays = svaddv_f32(p0, ay_1);
+		azs = svaddv_f32(p0, az_1);
+		acc[i+1] = {axs, ays, azs};
+	}
+}
+
+void nbody_acle_jpar(
+	const int n,
+	const float eps2_ss,
+	const Body body[],
+	Acceleration acc[])
+{
+	assert(0 == n%16);
+	VecBodies vbody[n/16] __attribute__ ((aligned(256)));
+	
+	const svbool_t p0 = svptrue_b32();
+
+	for(int j=0, j16=0; j<n; j+=16, j16++){
+		svfloat32x4_t b = svld4_f32(p0, (const float *)(body+j));
+
+		svfloat32_t vx = svget4_f32(b, 0);
+		svfloat32_t vy = svget4_f32(b, 1);
+		svfloat32_t vz = svget4_f32(b, 2);
+		svfloat32_t vm = svget4_f32(b, 3);
+
+		svst1_f32(p0, vbody[j16].x, vx);
+		svst1_f32(p0, vbody[j16].y, vy);
+		svst1_f32(p0, vbody[j16].z, vz);
+		svst1_f32(p0, vbody[j16].m, vm);
+	}
+	nbody_acle_jpar_inner(n, eps2_ss, vbody, acc, vbody);
+}
+
 extern void nbody_tune1_inner(
 		const int n,
 		const svfloat32_t eps2,
@@ -764,10 +887,11 @@ int main(){
 	verify(nbody_acle);
 	verify(nbody_acle_rsqrt3);
 	verify(nbody_acle_recalc);
+	verify(nbody_acle_jpar);
 	verify(nbody_tune1);
 	verify(nbody_tune2);
 
-#if 0
+#if 1
 	puts("Compiler");
 	benchmark(nbody_compiler_AoS);
 	benchmark(nbody_compiler_SoA);
@@ -779,6 +903,7 @@ int main(){
 #endif
 	benchmark(nbody_acle_recalc);
 	benchmark(nbody_acle_ni32);
+	benchmark(nbody_acle_jpar);
 	puts("asmtune");
 	benchmark(nbody_tune1);
 	benchmark(nbody_tune2);
