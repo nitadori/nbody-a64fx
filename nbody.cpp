@@ -327,11 +327,6 @@ void nbody_acle(
 	Acceleration acc[])
 {
 	const svfloat32_t eps2 = svdup_f32(eps2_ss);
-
-	const svfloat32_t one  = svdup_f32(1.0);
-	const svfloat32_t b    = svdup_f32(15./8.);
-	const svfloat32_t a    = svdup_f32( 3./2.);
-
 	const svbool_t p0 = svptrue_b32();
 
 	for(int i=0; i<n; i+=16){
@@ -504,6 +499,31 @@ void nbody_acle_recalc(
 	}
 }
 
+extern void nbody_tune1_inner(
+		const int n,
+		const svfloat32_t eps2,
+		const Body body[],
+		Acceleration acc[],
+		const svfloat32_t one,
+		const svfloat32_t a,
+		const svfloat32_t b,
+		const Body body2[]);
+
+__attribute__((noinline))
+void nbody_tune1(
+	const int n,
+	const float eps2_ss,
+	const Body body[],
+	Acceleration acc[])
+{
+	const svfloat32_t eps2 = svdup_f32(eps2_ss);
+	const svfloat32_t one  = svdup_f32(1.0);
+	const svfloat32_t b    = svdup_f32(15./8.);
+	const svfloat32_t a    = svdup_f32( 3./2.);
+
+	nbody_tune1_inner(n, eps2, body, acc, one, a, b, body);
+}
+
 int main(){
 	enum{
 		N = 2*1024,
@@ -617,14 +637,21 @@ int main(){
 	verify(nbody_acle);
 	verify(nbody_acle_rsqrt3);
 	verify(nbody_acle_recalc);
+	verify(nbody_tune1);
 
+#if 0
+	puts("Compiler");
 	benchmark(nbody_compiler_AoS);
 	benchmark(nbody_compiler_SoA);
 	benchmark(nbody_compiler_unroll);
 	benchmark(nbody_compiler_recalc);
+	puts("ACLE");
 	benchmark(nbody_acle);
 	benchmark(nbody_acle_rsqrt3);
+#endif
 	benchmark(nbody_acle_recalc);
+	puts("asmtune");
+	benchmark(nbody_tune1);
 
 	return 0;
 }
