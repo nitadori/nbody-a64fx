@@ -648,7 +648,7 @@ void nbody_tune2(
 	const svfloat32_t b    = svdup_f32(15./8.);
 	const svfloat32_t a    = svdup_f32( 3./2.);
 
-	nbody_tune1_inner(n, eps2, body, acc, one, a, b, body);
+	nbody_tune2_inner(n, eps2, body, acc, one, a, b, body);
 }
 
 int main(){

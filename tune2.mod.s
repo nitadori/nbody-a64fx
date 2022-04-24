@@ -609,7 +609,8 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*    112 */	fmad	z10.s, p0/m, z10.s, z14.s
 	.loc 1 119 0
 ..LDL170:
-/*    119 */	ldr	s1, [x3, 8]	//  (*)
+// (1) /*    119 */	ldr	s1, [x3, 8]	//  (*)
+/*    (1) */	ld1rw	{z1.s}, p0/z, [x3, 8]	//  (*)
 	.loc 1 98 0
 ..LDL171:
 /*     98 */	fsub	z11.s, z4.s, z3.s
@@ -627,7 +628,7 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*    120 */	ldr	s30, [x3, 12]	//  (*)
 	.loc 1 119 0
 ..LDL176:
-/*    119 */	dup	z1.s, z1.s[0]
+// (1) /*    119 */	dup	z1.s, z1.s[0]
 	.loc 1 96 0
 ..LDL177:
 /*     96 */	ld1rw	{z15.s}, p0/z, [x4]	//  (*)
@@ -957,7 +958,7 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*     48 */	fmul	z24.s, z18.s, z24.s
 	.loc 1 115 0
 ..LDL285:
-/*    115 */	bge	.L149
+/*    115 */	bge	.L149 // end_of_swpl
 	.loc 1 138 0
 ..LDL286:
 /*    138 */	fmla	z3.s, p0/m, z11.s, z2.s
