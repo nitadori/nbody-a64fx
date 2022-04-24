@@ -625,7 +625,8 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /* #00001 */	ldr	z4, [x29, 16, mul vl]	//  (*)
 	.loc 1 120 0
 ..LDL175:
-/*    120 */	ldr	s30, [x3, 12]	//  (*)
+// (3) /*    120 */	ldr	s30, [x3, 12]	//  (*)
+/*    (2) */	ld1rw	{z12.s}, p0/z, [x3, 12]	//  (*)
 	.loc 1 119 0
 ..LDL176:
 // (1) /*    119 */	dup	z1.s, z1.s[0]
@@ -634,7 +635,9 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*     96 */	ld1rw	{z15.s}, p0/z, [x4]	//  (*)
 	.loc 1 94 0
 ..LDL178:
-/*     94 */	ldr	s12, [x5, -8]	//  (*)
+// (2) /*     94 */	ldr	s12, [x5, -8]	//  (*)
+// (2) x4 = x5 - 16
+/*    (2) */	ld1rw	{z18.s}, p0/z, [x4, 8]	//  (*)
 	.loc 1 51 0
 ..LDL179:
 /*     51 */	fmul	z7.s, z25.s, z24.s
@@ -646,10 +649,10 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*    108 */	fmad	z8.s, p0/m, z8.s, z17.s
 	.loc 1 94 0
 ..LDL182:
-/*     94 */	dup	z18.s, z12.s[0]
+// (2) /*     94 */	dup	z18.s, z12.s[0]
 	.loc 1 120 0
 ..LDL183:
-/*    120 */	dup	z12.s, z30.s[0]
+// (3) /*    120 */	dup	z12.s, z30.s[0]
 	.loc 1 52 0
 ..LDL184:
 /*     52 */	fmla	z16.s, p0/m, z27.s, z4.s
@@ -670,7 +673,8 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*     42 */	frsqrte	z19.s, z10.s
 	.loc 1 95 0
 ..LDL190:
-/*     95 */	ldr	s20, [x5, -4]	//  (*)
+// (4) /*     95 */	ldr	s20, [x5, -4]	//  (*)
+/*    (4) */	ld1rw	{z20.s}, p0/z, [x4, 12]	//  (*)
 	.loc 1 103 0
 ..LDL191:
 /*    103 */	fsub	z30.s, z18.s, z22.s
@@ -683,7 +687,7 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*    106 */	fmad	z17.s, p0/m, z11.s, z4.s
 	.loc 1 95 0
 ..LDL194:
-/*     95 */	dup	z20.s, z20.s[0]
+// (4) /*     95 */	dup	z20.s, z20.s[0]
 	.loc 1 131 0
 ..LDL195:
 /*    131 */	fsub	z4.s, z3.s, z9.s
