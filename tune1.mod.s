@@ -288,7 +288,7 @@ _Z17nbody_tune1_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 // (15) /*     88 */	dup	z15.s, z13.s[0]
 	.loc 1 89 0
 ..LDL64:
-// mod /*     89 */	ldr	s11, [x11, -4]	//  (*) // removed
+// (1) /*     89 */	ldr	s11, [x11, -4]	//  (*) // removed
 	.loc 1 117 0
 ..LDL65:
 // /*    117 */	add	x14, x11, 16 // mod: x14 = x11 + 16 // moved later
@@ -296,7 +296,7 @@ _Z17nbody_tune1_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 ..LDL66:
 /*     98 */	fmad	z26.s, p0/m, z26.s, z16.s
 /*    (1) */	ld1rw	{z16.s}, p0/z, [x14, 28]	//  (*)
-/*    mod */	add	x14, x11, 16 // mod: x14 = x11 + 16
+/*    (1) */	add	x14, x11, 16 // mod: x14 = x11 + 16
 	.loc 1 87 0
 ..LDL67:
 // /*     87 */	ldr	s13, [x11, 4]	//  (*)
