@@ -7,6 +7,8 @@
 #include<cmath>
 #include<algorithm>
 
+#include <fj_tool/fapp.h>
+
 #include "timer.hpp"
 
 struct Body{
@@ -880,6 +882,20 @@ int main(){
 		fflush(stdout);
 	};
 
+	auto fapp = [=](auto kernel, const char *name, int number, int level=0, int ntimes=100){
+		// warm-up
+		for(int i=0; i<N; i++){
+			acc[i] = {0,0,0};
+		}
+		kernel(N, eps2, body, acc);
+
+		fapp_start(name, number, level);
+		for(int j=0; j<ntimes; j++){
+			kernel(N, eps2, body, acc);
+		}
+		fapp_stop(name, number, level);
+	};
+
 	verify(nbody_compiler_AoS);
 	verify(nbody_compiler_SoA);
 	verify(nbody_compiler_unroll);
@@ -907,6 +923,10 @@ int main(){
 	puts("asmtune");
 	benchmark(nbody_tune1);
 	benchmark(nbody_tune2);
+
+	fapp(nbody_compiler_SoA, "Compiler_SoA", 2);
+	fapp(nbody_acle,         "ACLE_plane",   5);
+	fapp(nbody_tune2,        "asm_fastest",  11);
 
 	return 0;
 }
