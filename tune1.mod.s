@@ -279,18 +279,19 @@ _Z17nbody_tune1_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*     88 */	dup	z15.s, z13.s[0]
 	.loc 1 89 0
 ..LDL64:
-// // /*     89 */	ldr	s11, [x11, -4]	//  (*)
+// mod /*     89 */	ldr	s11, [x11, -4]	//  (*) // removed
 	.loc 1 117 0
 ..LDL65:
-// /*    117 */	add	x14, x11, 16 // mod: x14 = x11 + 16
+// /*    117 */	add	x14, x11, 16 // mod: x14 = x11 + 16 // moved later
 	.loc 1 98 0
 ..LDL66:
 /*     98 */	fmad	z26.s, p0/m, z26.s, z16.s
-/*    mod */	ld1rw	{z16.s}, p0/z, [x14, 28]	//  (*)
+/*    (1) */	ld1rw	{z16.s}, p0/z, [x14, 28]	//  (*)
 /*    mod */	add	x14, x11, 16 // mod: x14 = x11 + 16
 	.loc 1 87 0
 ..LDL67:
-/*     87 */	ldr	s13, [x11, 4]	//  (*)
+// /*     87 */	ldr	s13, [x11, 4]	//  (*)
+/*    (2) */	ld1rw	{z11.s}, p0/z, [x11, 4]	//  (*)
 	.loc 1 54 0
 ..LDL68:
 /*     54 */	fmad	z25.s, p0/m, z5.s, z7.s
@@ -320,19 +321,20 @@ _Z17nbody_tune1_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*     90 */	ld1rw	{z15.s}, p0/z, [x13]	//  (*)
 	.loc 1 89 0
 ..LDL77:
-// /*     89 */	dup	z16.s, z11.s[0]
+// (1) /*     89 */	dup	z16.s, z11.s[0]
 	.loc 1 117 0
 ..LDL78:
 /*    117 */	add	x13, x8, 16
 	.loc 1 103 0
 ..LDL79:
-/*    103 */	ldr	s14, [x8, 8]	//  (*)
+// (3) /*    103 */	ldr	s14, [x8, 8]	//  (*)
 	.loc 1 87 0
 ..LDL80:
-/*     87 */	dup	z11.s, z13.s[0]
+// (2) /*     87 */	dup	z11.s, z13.s[0]
 	.loc 1 104 0
 ..LDL81:
-/*    104 */	ldr	s13, [x8, 12]	//  (*)
+// (4) /*    104 */	ldr	s13, [x8, 12]	//  (*)
+/*    (4) */	ld1rw	{z17.s}, p0/z, [x8, 12]	//  (*)
 	.loc 1 88 0
 ..LDL82:
 /*     88 */	ldr	s12, [x11, 8]	//  (*)
@@ -345,6 +347,7 @@ _Z17nbody_tune1_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 	.loc 1 113 0
 ..LDL85:
 /*    113 */	fmla	z28.s, p0/m, z25.s, z9.s
+/*    (3) */	ld1rw	{z9.s}, p0/z, [x8, 8]	//  (*)
 	.loc 1 114 0
 ..LDL86:
 /*    114 */	fmla	z27.s, p0/m, z25.s, z5.s
@@ -374,10 +377,10 @@ _Z17nbody_tune1_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*     45 */	fmul	z15.s, z15.s, z10.s
 	.loc 1 103 0
 ..LDL95:
-/*    103 */	dup	z9.s, z14.s[0]
+// (3) /*    103 */	dup	z9.s, z14.s[0]
 	.loc 1 104 0
 ..LDL96:
-/*    104 */	dup	z17.s, z13.s[0]
+// (4) /*    104 */	dup	z17.s, z13.s[0]
 	.loc 1 88 0
 ..LDL97:
 /*     88 */	dup	z14.s, z12.s[0]
