@@ -757,10 +757,11 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*    140 */	add	x4, x5, 16
 	.loc 1 93 0
 ..LDL217:
-/*     93 */	ldr	s26, [x5, 4]	//  (*)
+// (5) /*     93 */	ldr	s26, [x5, 4]	//  (*)
 	.loc 1 49 0
 ..LDL218:
 /*     49 */	fmsb	z10.s, p0/m, z11.s, z5.s
+/*    (4) */	ld1rw	{z5.s}, p0/z, [x5, 4]	//  (*)
 	.loc 1 48 0
 ..LDL219:
 /*     48 */	fmul	z11.s, z19.s, z11.s
@@ -769,7 +770,7 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /*    107 */	fmad	z18.s, p0/m, z18.s, z17.s
 	.loc 1 93 0
 ..LDL221:
-/*     93 */	dup	z5.s, z26.s[0]
+// (5) /*     93 */	dup	z5.s, z26.s[0]
 	.loc 1 138 0
 ..LDL222:
 /*    138 */	fmad	z3.s, p0/m, z24.s, z2.s
@@ -802,19 +803,21 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /* #00001 */	ldr	z6, [x29, 12, mul vl]	//  (*)
 	.loc 1 140 0
 ..LDL232:
-/*    140 */	add	x3, x3, 32
+// (6) /*    140 */	add	x3, x3, 32
 	.loc 1 112 0
 ..LDL233:
 /*    112 */	fmad	z25.s, p0/m, z25.s, z14.s
 	.loc 1 119 0
 ..LDL234:
-/*    119 */	ldr	s0, [x3, -8]	//  (*)
+// (6) /*    119 */	ldr	s0, [x3, -8]	//  (*)
+/*    (6) */	ld1rw	{z0.s}, p0/z, [x3, 24]	//  (*)
 	.loc 1 98 0
 ..LDL235:
 /*     98 */	fsub	z16.s, z5.s, z2.s
 	.loc 1 121 0
 ..LDL236:
-/*    121 */	ld1rw	{z2.s}, p0/z, [x3]	//  (*)
+// (6a) /*    121 */	ld1rw	{z2.s}, p0/z, [x3]	//  (*)
+/*    (6a) */	ld1rw	{z2.s}, p0/z, [x3, 32]	//  (*)
 	.loc 1 102 0
 ..LDL237:
 /*    102 */	fsub	z19.s, z5.s, z6.s
@@ -823,10 +826,13 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /* #00001 */	ldr	z5, [x29, 16, mul vl]	//  (*)
 	.loc 1 120 0
 ..LDL239:
-/*    120 */	ldr	s26, [x3, -4]	//  (*)
+// /*    120 */	ldr	s26, [x3, -4]	//  (*)
+// (7) /*    (6a) */	ldr	s26, [x3, 28]	//  (*)
+/*    (6) */	ld1rw	{z8.s}, p0/z, [x3, 28]	//  (*)
+/*    (6a) */	add	x3, x3, 32
 	.loc 1 119 0
 ..LDL240:
-/*    119 */	dup	z0.s, z0.s[0]
+// (6) /*    119 */	dup	z0.s, z0.s[0]
 	.loc 1 96 0
 ..LDL241:
 /*     96 */	ld1rw	{z15.s}, p0/z, [x5]	//  (*)
@@ -850,7 +856,7 @@ _Z17nbody_tune2_inneriDvfPK4BodyP12AccelerationS_S_S_S2_:
 /* #00001 */	ldr	z31, [x29, 17, mul vl]	//  (*)
 	.loc 1 120 0
 ..LDL248:
-/*    120 */	dup	z8.s, z26.s[0]
+// (7) /*    120 */	dup	z8.s, z26.s[0]
 	.loc 1 52 0
 ..LDL249:
 /*     52 */	fmla	z31.s, p0/m, z24.s, z5.s
