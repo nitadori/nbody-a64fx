@@ -613,8 +613,31 @@ extern void nbody_tune1_inner(
 		const svfloat32_t b,
 		const Body body2[]);
 
-__attribute__((noinline))
+extern void nbody_tune2_inner(
+		const int n,
+		const svfloat32_t eps2,
+		const Body body[],
+		Acceleration acc[],
+		const svfloat32_t one,
+		const svfloat32_t a,
+		const svfloat32_t b,
+		const Body body2[]);
+
 void nbody_tune1(
+	const int n,
+	const float eps2_ss,
+	const Body body[],
+	Acceleration acc[])
+{
+	const svfloat32_t eps2 = svdup_f32(eps2_ss);
+	const svfloat32_t one  = svdup_f32(1.0);
+	const svfloat32_t b    = svdup_f32(15./8.);
+	const svfloat32_t a    = svdup_f32( 3./2.);
+
+	nbody_tune1_inner(n, eps2, body, acc, one, a, b, body);
+}
+
+void nbody_tune2(
 	const int n,
 	const float eps2_ss,
 	const Body body[],
@@ -742,8 +765,9 @@ int main(){
 	verify(nbody_acle_rsqrt3);
 	verify(nbody_acle_recalc);
 	verify(nbody_tune1);
+	verify(nbody_tune2);
 
-#if 1
+#if 0
 	puts("Compiler");
 	benchmark(nbody_compiler_AoS);
 	benchmark(nbody_compiler_SoA);
@@ -757,6 +781,7 @@ int main(){
 	benchmark(nbody_acle_ni32);
 	puts("asmtune");
 	benchmark(nbody_tune1);
+	benchmark(nbody_tune2);
 
 	return 0;
 }
