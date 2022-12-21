@@ -7,7 +7,12 @@
 #include<cmath>
 #include<algorithm>
 
+#if 0
 #include <fj_tool/fapp.h>
+#else
+#define fapp_start(name, number, level);
+#define fapp_stop(name, number, level);
+#endif
 
 #include "timer.hpp"
 
